@@ -13,10 +13,10 @@ import os
 load_dotenv()
 
 API_KEY_PORTKEY = os.getenv("API_KEY_PORTKEY")
-API_KEY_MISTRAL = os.getenv("API_KEY_MISTRAL")
+API_KEY_MISTRAL = os.getenv("API_KEY_MISTRAL") # Optional, only if you want to test Mistral directly without Portkey
 
 # Direct test with Mistral AI without Portkey - Common way to use the library
-if API_KEY_PORTKEY:
+if API_KEY_MISTRAL:
     print("#############################################################")
     print("Asking Mistral directly without Portkey")
     client = Mistral(api_key=API_KEY_MISTRAL)
