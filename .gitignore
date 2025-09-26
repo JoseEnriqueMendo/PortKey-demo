@@ -1,0 +1,33 @@
+# Archivos de entorno
+.env
+*.env
+
+# Archivos de configuración local
+*.local
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+.venv/
+venv/
+ENV/
+env/
+
+# Archivos de paquetes
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Archivos de Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Archivos de logs
+*.log
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
