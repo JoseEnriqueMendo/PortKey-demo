@@ -3,8 +3,10 @@
 # https://portkey.ai/docs/introduction/what-is-portkey
 
 # Libraries
+import base64
 from mistralai import Mistral  # type: ignore
 import json
+from openai import OpenAI
 from portkey_ai import Portkey  # type: ignore
 from dotenv import load_dotenv
 import os
@@ -15,9 +17,12 @@ load_dotenv()
 API_KEY_PORTKEY = os.getenv("API_KEY_PORTKEY")
 API_KEY_MISTRAL = os.getenv("API_KEY_MISTRAL") # Optional, only if you want to test Mistral directly without Portkey
 
+# Define a constant for the separator line
+SEPARATOR_LINE = "#############################################################"
+
 # Direct test with Mistral AI without Portkey - Common way to use the library
 if API_KEY_MISTRAL:
-    print("#############################################################")
+    print(SEPARATOR_LINE)
     print("Asking Mistral directly without Portkey")
     client = Mistral(api_key=API_KEY_MISTRAL)
     response = client.chat.complete(
@@ -33,7 +38,7 @@ if API_KEY_MISTRAL:
 provider_name_openai = "@test-openai"  # Provider name for OpenAI in Portkey
 
 try:
-    print("#############################################################")
+    print(SEPARATOR_LINE)
     print("Asking OpenAI with Portkey")
     portkey = Portkey(
         api_key=API_KEY_PORTKEY,
@@ -48,12 +53,9 @@ try:
     print(response)
 except Exception as e:
     print(f"An error occurred: {e}")
-    print("Failed to connect with OpenAI provider")
-
-
-# Test with the Mistral AI provider
+#Test with the Mistral AI provider
 try:
-    print("#############################################################")
+    print(SEPARATOR_LINE)
     print("Asking Mistral with Portkey")
 
     provider_name_mistral = "@test-mistral"  # Provider name for Mistral in Portkey
@@ -74,18 +76,15 @@ try:
     print(chat_complete.choices[0].message.content)
 except Exception as e:
     print(f"An error occurred: {e}")
-    print("Failed to connect with Mistral provider")
-
-
 # Test with multiple providers using fallback strategy
 try:
-    print("#############################################################")
+    print(SEPARATOR_LINE)
     print("Asking multiple providers with Portkey")
 
     portkey = Portkey(
         api_key=API_KEY_PORTKEY
     )
-
+   
     # Define fallback strategy
     config = {
         "strategy": {
@@ -120,3 +119,38 @@ try:
 except Exception as e:
     print(f"An error occurred: {e}")
     print("Failed to connect with providers")
+
+
+
+print("=== Testing OpenRouter with image input ===")
+
+try:
+    # Create Portkey client pointing to OpenRouter
+    client = Portkey(
+        api_key=API_KEY_PORTKEY,
+        provider="@test-openrouter"  # Your OpenRouter provider in Portkey
+    )
+
+    # Convert local image to base64
+    with open("image_test.png", "rb") as f:
+        image_base64 = base64.b64encode(f.read()).decode("utf-8")
+
+    # Send image + text prompt to the model
+    chat_response = client.chat.completions.create(
+        model="openai/gpt-4o",  # or "openai/gpt-4o-mini"
+        messages=[
+            {"role": "system", "content": "You are an assistant that analyzes images."},
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Describe what you see in this image:"},
+                    {"type": "image_url", "image_url": f"data:image/png;base64,{image_base64}"}
+                ]
+            }
+        ]
+    )
+
+    print("✅ Response:", chat_response.choices[0].message["content"])
+
+except Exception as e:
+    print(f"❌ Error: {e}")
